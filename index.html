@@ -142,16 +142,46 @@
             display: none; /* Começa escondido */
         }
 
-        #form-result.success {
-            background-color: #e9f7ef;
-            color: var(--success-color);
-            display: block;
-        }
-
         #form-result.error {
             background-color: #fdecea;
             color: var(--error-color);
             display: block;
+        }
+
+        /* Estilos para o Modal de Sucesso */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* Começa escondido */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--form-background);
+            padding: 2.5rem 3.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .modal-content p {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .modal-content svg {
+            color: var(--success-color);
+            width: 50px;
+            height: 50px;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -178,7 +208,7 @@
 
             <div class="form-group">
                 <label for="endereco">Endereço da Indicação</label>
-                <input type="text" id="endereco" name="Endereço da Indicação" required>
+                <input type="text" id="endereco" name="Endereço da Indicação" placeholder="Rua, Bairro, Ponto de Referência..." required>
             </div>
 
             <div class="form-group">
@@ -188,7 +218,7 @@
 
             <div class="form-group">
                 <label for="sugestoes">Sugestões (Opcional)</label>
-                <textarea id="sugestoes" name="Sugestões" placeholder="Deixe aqui suas sugestões de melhorias para o seu bairro..."></textarea>
+                <textarea id="sugestoes" name="Sugestões"></textarea>
             </div>
 
             <button type="submit" class="submit-btn" id="submit-button">
@@ -197,8 +227,16 @@
             </button>
         </form>
         
-        <!-- Mensagem de resultado do envio -->
+        <!-- Mensagem de resultado de erro (dentro do container) -->
         <div id="form-result"></div>
+    </div>
+
+    <!-- Modal de Sucesso (fora do container, para centralizar na tela) -->
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <p id="success-message"></p>
+        </div>
     </div>
 
     <script>
@@ -206,6 +244,8 @@
         const form = document.getElementById('indication-form');
         const resultDiv = document.getElementById('form-result');
         const submitButton = document.getElementById('submit-button');
+        const successModal = document.getElementById('success-modal');
+        const successMessage = document.getElementById('success-message');
 
         form.addEventListener('submit', function(e) {
             e.preventDefault(); // Impede o comportamento padrão de recarregar a página
@@ -221,25 +261,34 @@
             })
             .then(response => response.json())
             .then(data => {
-                resultDiv.classList.remove('error');
-                resultDiv.classList.add('success');
-                resultDiv.textContent = data.message || "Indicação enviada com sucesso! Vamos solucionar isso o mais rápido possível. Obrigado pela colaboração!";
+                resultDiv.style.display = 'none'; // Garante que a mensagem de erro suma
+                
+                successMessage.textContent = data.message || "Indicação enviada com sucesso! Vamos resolver isso o mais rápido possível. Obrigado pela colaboração!";
+                successModal.style.display = 'flex'; // Mostra o modal de sucesso
+                
                 form.reset(); // Limpa os campos do formulário
+
+                // Esconde o modal de sucesso após 5 segundos
+                setTimeout(() => {
+                    successModal.style.display = 'none';
+                }, 5000);
             })
             .catch(error => {
                 resultDiv.classList.remove('success');
                 resultDiv.classList.add('error');
                 resultDiv.textContent = "Ops! Algo deu errado. Tente novamente.";
+                resultDiv.style.display = 'block'; // Mostra a mensagem de erro
                 console.error('Error:', error);
-            })
-            .finally(() => {
-                // Reabilita o botão após o envio
-                submitButton.disabled = false;
-                submitButton.querySelector('span').textContent = 'Enviar Indicação';
-                // Esconde a mensagem de resultado após 7 segundos
+
+                // Esconde a mensagem de erro após 5 segundos
                 setTimeout(() => {
                     resultDiv.style.display = 'none';
-                }, 7000);
+                }, 5000);
+            })
+            .finally(() => {
+                // Apenas reabilita o botão
+                submitButton.disabled = false;
+                submitButton.querySelector('span').textContent = 'Enviar Indicação';
             });
         });
     </script>
