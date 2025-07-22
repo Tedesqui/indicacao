@@ -34,7 +34,7 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     console.log("Recebendo dados do formulário...");
 
     // Extrai os dados do corpo da requisição
-    const { 'Nome do Relator': nome, 'Endereço do Problema': endereco, 'Descrição do Problema': descricao } = req.body;
+    const { 'Nome do Relator': nome, 'Endereço da Indicação': endereco, 'Descrição da Indicação': descricao } = req.body;
     const foto = req.file;
 
     // Verificação simples para garantir que todos os dados chegaram
@@ -58,12 +58,12 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     const mailOptions = {
         from: `"Relatório de Problemas" <${process.env.EMAIL_USER}>`, // E-mail que aparecerá como remetente
         to: 'jk.tedesqui@gmail.com', // E-MAIL QUE RECEBERÁ O RELATÓRIO
-        subject: `Novo Relatório de Problema: ${endereco}`,
+        subject: `Novo Relatório de Indicação: ${endereco}`,
         // Corpo do e-mail em HTML para melhor formatação
         html: `
-            <h1>Novo Relatório de Problema Recebido</h1>
+            <h1>Novo Relatório de Indicação Recebido</h1>
             <p><strong>Nome do Relator:</strong> ${nome}</p>
-            <p><strong>Endereço da Ocorrência:</strong> ${endereco}</p>
+            <p><strong>Endereço da Indicação:</strong> ${endereco}</p>
             <p><strong>Descrição:</strong></p>
             <p>${descricao}</p>
             <hr>
