@@ -93,17 +93,3 @@ app.post('/', upload.single('foto'), (req, res) => {
 
 // Exporta a aplicação para a Vercel
 module.exports = app;
-```
-
-### O Que Fazer Agora (Passo a Passo)
-
-1.  **Atualize o `server.js`:** Copie o código acima e substitua o conteúdo do seu ficheiro `api/server.js`.
-2.  **Edite o URL do CORS:** Na linha `const allowedOrigins = ['https://tedesqui-indicacao.vercel.app'];`, **substitua** `https://seu-site-frontend.vercel.app` pelo URL **real** do seu site que está no Canvas.
-3.  **Envie para o GitHub:** Faça "commit" e "push" das alterações para o seu repositório.
-4.  **Aguarde o Deploy:** A Vercel irá reimplantar o seu site automaticamente.
-5.  **O Teste Final:**
-    * Vá ao seu painel de controlo na **Vercel** e abra os **"Logs"** da sua função.
-    * Com os logs abertos, tente submeter o formulário no seu site.
-    * **Observe os logs em tempo real.** Eles agora dir-lhe-ão exatamente o que está a acontecer.
-
-Se vir a mensagem `EMAIL_USER carregado: NÃO`, o problema está 100% na configuração das variáveis de ambiente na Vercel. Se vir outra mensagem de erro em vermelho, essa será a causa do proble
