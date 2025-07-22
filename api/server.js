@@ -1,101 +1,103 @@
-// --- Backend para o formulário de Indicação ---
-// Versão com diagnóstico melhorado e configuração de CORS explícita.
-
+// Importação das dependências
 const express = require('express');
-const nodemailer = require('nodemailer');
-const multer = require('multer');
 const cors = require('cors');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
 
+// Inicialização do Express
 const app = express();
 
-// --- Configuração de CORS (Cross-Origin Resource Sharing) ---
-// IMPORTANTE: Confirme se 'https://tedesqui-indicacao.vercel.app' é o URL exato do seu site.
-const corsOptions = {
-  origin: 'https://tedesqui-indicacao.vercel.app',
-  optionsSuccessStatus: 200 // para browsers mais antigos
-};
-app.use(cors(corsOptions));
-
-// Middlewares para processar os dados do formulário
+// Configuração dos Middlewares
+// Habilita o CORS para permitir requisições do seu frontend
+app.use(cors());
+// Permite que o Express entenda requisições com corpo em JSON
 app.use(express.json());
+// Permite que o Express entenda requisições com corpo URL-encoded
 app.use(express.urlencoded({ extended: true }));
 
-// Configuração do Multer
-const upload = multer({ storage: multer.memoryStorage() });
+// Configuração do Multer para lidar com o upload da foto
+// Vamos armazenar a foto em memória para anexá-la diretamente ao e-mail
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// --- Rota de Verificação (Health Check) ---
-// Pode testar esta rota diretamente no navegador para ver se o servidor está online.
-// URL: https://tedesqui-indicacao.vercel.app/send-report
-app.get('/send-report', (req, res) => {
-    console.log("Rota GET de verificação acionada com sucesso.");
-    res.status(200).json({ message: 'O servidor de backend está a funcionar corretamente.' });
+// Configuração do Nodemailer (transporter)
+// É aqui que você coloca as credenciais do seu e-mail.
+// Use variáveis de ambiente para segurança!
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // ou outro provedor de e-mail
+    auth: {
+        user: process.env.EMAIL_USER, // Seu e-mail (ex: seuemail@gmail.com)
+        pass: process.env.EMAIL_PASS, // Sua Senha de App do Google
+    },
 });
 
-// --- Rota de Envio do Formulário ---
-app.post('/send-report', upload.single('foto'), (req, res) => {
-    console.log("Rota POST acionada. A processar o formulário...");
-    console.log("Dados recebidos:", req.body); // Log para ver os dados que chegam
-
-    // Extrai os dados do corpo da requisição usando os nomes exatos do seu HTML.
-    const {
-        'Digite seu nome': nome,
-        'Endereço da Indicação': endereco,
-        'Descrição da Indicação ': descricao
-    } = req.body;
+// Definição da rota POST para /send-report
+// O 'upload.single('foto')' é o middleware do Multer que processa o arquivo do campo 'foto'
+app.post('/send-report', upload.single('foto'), async (req, res) => {
+    // Extrai os dados do corpo da requisição
+    const { 'Digite seu nome': nome, 'Endereço da Indicação': endereco, 'Descrição da Indicação ': descricao } = req.body;
+    
+    // O arquivo da foto estará em req.file
     const foto = req.file;
 
-    // Validação
+    // Validação básica para garantir que todos os dados chegaram
     if (!nome || !endereco || !descricao || !foto) {
-        console.error("Erro: Faltando dados do formulário.", { nome, endereco, descricao, foto: !!foto });
         return res.status(400).json({ success: false, message: 'Todos os campos são obrigatórios.' });
     }
-    
-    // --- Configuração do Nodemailer ---
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.error("ERRO CRÍTICO: Variáveis de ambiente EMAIL_USER ou EMAIL_PASS não encontradas.");
-        return res.status(500).json({ success: false, message: 'Erro de configuração no servidor.' });
-    }
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    // --- Montagem do E-mail ---
+    // Montagem do corpo do e-mail em HTML para uma melhor visualização
     const mailOptions = {
-        from: `"Relatório de Indicações" <${process.env.EMAIL_USER}>`,
-        to: 'jk.tedesqui@gmail.com', // **IMPORTANTE: Altere para o e-mail que receberá as indicações**
-        subject: `Nova Indicação Recebida: ${endereco}`,
+        from: `Relatório de Indicação <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_RECEIVER, // O e-mail que receberá o relatório
+        subject: `Nova Indicação Recebida de: ${nome}`,
         html: `
-            <h1>Nova Indicação Recebida</h1>
-            <p><strong>Nome do Indicador:</strong> ${nome}</p>
-            <p><strong>Endereço da Indicação:</strong> ${endereco}</p>
-            <p><strong>Descrição:</strong></p>
-            <p>${descricao}</p>
-            <hr>
-            <p>A foto da indicação está anexada a este e-mail.</p>
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2 style="color: #0056b3;">Nova Indicação de Problema Recebida</h2>
+                <p>Você recebeu um novo relatório através do formulário online.</p>
+                <hr>
+                <h3>Detalhes da Indicação:</h3>
+                <ul>
+                    <li><strong>Nome do Indicador:</strong> ${nome}</li>
+                    <li><strong>Endereço:</strong> ${endereco}</li>
+                </ul>
+                <h3>Descrição do Problema:</h3>
+                <p style="background-color: #f4f4f4; border-left: 4px solid #007bff; padding: 10px;">
+                    ${descricao}
+                </p>
+                <hr>
+                <p>Uma foto foi anexada a este e-mail para análise.</p>
+            </div>
         `,
-        attachments: [{
-            filename: foto.originalname,
-            content: foto.buffer,
-            contentType: foto.mimetype
-        }]
+        attachments: [
+            {
+                filename: foto.originalname, // Nome original do arquivo
+                content: foto.buffer,      // O conteúdo do arquivo em buffer
+                contentType: foto.mimetype // O tipo do arquivo (ex: image/jpeg)
+            }
+        ]
     };
 
-    // --- Envio do E-mail ---
-    console.log("A tentar enviar o e-mail...");
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Erro ao enviar o e-mail (Nodemailer):', error);
-            return res.status(500).json({ success: false, message: 'Ocorreu um erro ao enviar o e-mail.' });
-        }
-        console.log('E-mail enviado com sucesso:', info.response);
-        res.status(200).json({ success: true, message: 'Indicação enviada com sucesso!' });
-    });
+    try {
+        // Envio do e-mail
+        await transporter.sendMail(mailOptions);
+        
+        // Resposta de sucesso para o frontend
+        console.log(`E-mail enviado com sucesso de ${nome}`);
+        res.status(200).json({ success: true, message: 'Relatório enviado com sucesso!' });
+
+    } catch (error) {
+        // Resposta de erro para o frontend
+        console.error('Erro ao enviar o e-mail:', error);
+        res.status(500).json({ success: false, message: 'Ocorreu um erro no servidor ao tentar enviar o e-mail.' });
+    }
 });
 
-// Exporta a aplicação para a Vercel.
+// Define a porta do servidor
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
+
+// Exporta o app para a Vercel (necessário para a arquitetura serverless)
 module.exports = app;
