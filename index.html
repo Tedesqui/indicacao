@@ -44,7 +44,7 @@
         }
 
         h1 {
-            color: var(--primary-color);
+            color: #000000;
             text-align: center;
             margin-top: 0;
             margin-bottom: 2rem;
@@ -63,7 +63,8 @@
         }
 
         input[type="text"],
-        textarea {
+        textarea,
+        select {
             width: 100%;
             padding: 0.8rem 1rem;
             border: 1px solid var(--border-color);
@@ -74,7 +75,8 @@
         }
 
         input[type="text"]:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
@@ -154,9 +156,9 @@
               IMPORTANTE: Substitua "SUA_CHAVE_DE_ACESSO_AQUI" 
               pela chave que você obteve do Web3Forms.
             -->
-            <input type="hidden" name="access_key" value="06ca2708-2fb8-4700-aa35-b37809a91e36">
+            <input type="hidden" name="access_key" value="06ca2708--2fb8-4700-aa35-b37809a91e36">
             <input type="hidden" name="subject" value="Nova Indicação Recebida">
-            <input type="hidden" name="from_name" value="Sistema de Indicacoes">
+            <input type="hidden" name="from_name" value="Sistema de Indicações">
 
             <!-- Campos do Formulário -->
             <div class="form-group">
@@ -171,7 +173,12 @@
 
             <div class="form-group">
                 <label for="descricao">Descrição Detalhada</label>
-                <textarea id="descricao" name="Descrição Detalhada" required></textarea>
+                <textarea id="descricao" name="Descrição Detalhada" placeholder="Ex: Buraco na rua, poste sem luz, vazamento de água..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="sugestoes">Sugestões (Opcional)</label>
+                <textarea id="sugestoes" name="Sugestões" placeholder="Deixe aqui suas sugestões de melhoria..."></textarea>
             </div>
 
             <button type="submit" class="submit-btn" id="submit-button">
