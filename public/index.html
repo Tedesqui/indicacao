@@ -149,7 +149,7 @@
             try {
                 // ATENÇÃO: Substitua 'seu-projeto.vercel.app' pela URL real do seu projeto implantado na Vercel.
                 // A rota '/send-report' deve ser mantida, pois foi definida no seu backend (server.js).
-                const response = await fetch('https://tedesqui-indicacao.vercel.app/send-report', {
+                const response = await fetch('/send-report', {
                     method: 'POST',
                     body: formData, // Não precisa de headers como 'Content-Type', o FormData cuida disso
                 });
