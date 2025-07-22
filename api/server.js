@@ -1,61 +1,64 @@
 // =================================================================
 //      BACKEND PARA FORMULÁRIO DE INDICAÇÃO COM SENDGRID
+//      (COM CONFIGURAÇÃO DE CORS EXPLÍCITA PARA VERCEL)
 // =================================================================
 
-// 1. IMPORTAÇÃO DAS DEPENDÊNCIAS
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // A biblioteca CORS
 const multer = require('multer');
-const sgMail = require('@sendgrid/mail'); // Importa a biblioteca do SendGrid
+const sgMail = require('@sendgrid/mail');
 require('dotenv').config();
 
-// 2. INICIALIZAÇÃO E CONFIGURAÇÃO DO APP E SENDGRID
 const app = express();
-sgMail.setApiKey(process.env.SENDGRID_API_KEY); // Configura o SendGrid com sua Chave de API
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// 3. MIDDLEWARES
-app.use(cors());
+// ======================= MUDANÇA PRINCIPAL AQUI =======================
+// Em vez de apenas app.use(cors()), vamos passar um objeto de configuração.
+// Isso informa explicitamente quais "origens" (sites) podem fazer requisições.
+const corsOptions = {
+  origin: '*', // Permite requisições de QUALQUER origem. Para mais segurança,
+               // você pode substituir '*' pela URL do seu frontend.
+               // Ex: origin: 'https://meu-formulario.com'
+  methods: ['GET', 'POST', 'OPTIONS'], // Permite os métodos necessários
+  allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
+};
+
+app.use(cors(corsOptions)); // Aplica as opções de CORS
+// ====================================================================
+
 app.use(express.json());
 
-// 4. CONFIGURAÇÃO DO MULTER (Não muda)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// 5. DEFINIÇÃO DE ROTAS
+// Rota raiz para verificação
 app.get('/', (req, res) => {
-    res.status(200).json({ status: 'API com SendGrid está online!' });
+    res.status(200).json({ status: 'API com SendGrid e CORS configurado está online!' });
 });
 
+// Rota para o formulário
 app.post('/send-report', upload.single('foto'), async (req, res) => {
     try {
-        // Extrai os dados do corpo da requisição e o arquivo
         const { 'Digite seu nome': nome, 'Endereço da Indicação': endereco, 'Descrição da Indicação ': descricao } = req.body;
         const foto = req.file;
 
-        // Validação
         if (!nome || !endereco || !descricao || !foto) {
-            return res.status(400).json({ success: false, message: 'Todos os campos, incluindo a foto, são obrigatórios.' });
+            return res.status(400).json({ success: false, message: 'Todos os campos são obrigatórios.' });
         }
         
-        // Converte o buffer da imagem para Base64, que é o formato que o SendGrid usa para anexos
         const anexoEmBase64 = foto.buffer.toString('base64');
 
-        // Monta a mensagem para a API do SendGrid
         const msg = {
-            to: process.env.EMAIL_RECEIVER, // O destinatário do relatório
-            from: process.env.SENDGRID_FROM_EMAIL, // SEU E-MAIL VERIFICADO no SendGrid
+            to: process.env.EMAIL_RECEIVER,
+            from: process.env.SENDGRID_FROM_EMAIL,
             subject: `Nova Indicação de Problema: ${endereco}`,
             html: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                    <h1 style="color: #0056b3;">Relatório de Indicação Recebido</h1>
-                    <p>Um novo relatório foi enviado através do formulário do site.</p>
-                    <hr>
-                    <h3><strong>De:</strong> ${nome}</h3>
-                    <h3><strong>Endereço da Indicação:</strong> ${endereco}</h3>
-                    <h3><strong>Descrição do Problema:</strong></h3>
-                    <p style="background-color: #f4f4f4; border-left: 5px solid #007bff; padding: 15px; white-space: pre-wrap;">${descricao}</p>
-                    <hr>
-                    <p>A foto da indicação está anexa a este e-mail.</p>
+                    <h1>Relatório de Indicação Recebido</h1>
+                    <p>De: <strong>${nome}</strong></p>
+                    <p>Endereço: <strong>${endereco}</strong></p>
+                    <p>Descrição: ${descricao}</p>
+                    <p>A foto da indicação está anexa.</p>
                 </div>
             `,
             attachments: [
@@ -68,7 +71,6 @@ app.post('/send-report', upload.single('foto'), async (req, res) => {
             ],
         };
 
-        // Envia o e-mail usando a API do SendGrid
         await sgMail.send(msg);
 
         console.log(`E-mail enviado com sucesso de: ${nome} via SendGrid`);
@@ -80,12 +82,9 @@ app.post('/send-report', upload.single('foto'), async (req, res) => {
     }
 });
 
-
-// 6. INICIALIZAÇÃO DO SERVIDOR
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-// Exporta o app para a Vercel
 module.exports = app;
