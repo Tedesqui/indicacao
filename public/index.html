@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relat�rio de Problemas</title>
+    <title>Relatório de Indicações</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -16,26 +16,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
-        <!DOCTYPE html >
-        <html lang="pt-BR" >
-        <head >
-        <meta charset="UTF-8" >
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" >
-        <title > Relatório de Problemas</title >
-        <style >
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #172b4d;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
         .container {
             background-color: #ffffff;
             padding: 25px 30px;
@@ -46,25 +26,19 @@
             box-sizing: border-box;
             position: relative;
         }
-
         h1 {
             text-align: center;
             color: #091e42;
             margin-bottom: 25px;
             font-size: 24px;
         }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
+        .form-group { margin-bottom: 22px; }
         label {
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
             color: #42526e;
         }
-
         input[type="text"], textarea, input[type="file"] {
             width: 100%;
             padding: 12px;
@@ -74,23 +48,13 @@
             font-size: 16px;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-
-            input[type="text"]:focus, textarea:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-                outline: none;
-            }
-
-        input[type="file"] {
-            padding: 8px;
-            background-color: #fafbfc;
+        input[type="text"]:focus, textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            outline: none;
         }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
+        input[type="file"] { padding: 8px; background-color: #fafbfc; }
+        textarea { resize: vertical; min-height: 120px; }
         button {
             width: 100%;
             padding: 15px;
@@ -103,19 +67,16 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
-            button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-            }
-
-            button:disabled {
-                background: #ccc;
-                cursor: not-allowed;
-                transform: none;
-                box-shadow: none;
-            }
-
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
         .message {
             display: none;
             padding: 15px;
@@ -124,18 +85,8 @@
             margin-bottom: 20px;
             font-weight: bold;
         }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -152,19 +103,19 @@
                 <label for="nome">1. Seu Nome Completo</label>
                 <input type="text" id="nome" name="Nome do Relator" placeholder="Digite seu nome" required>
             </div>
-
+            
             <div class="form-group">
-                <label for="endereco">2. Endereço da Ocorrência</label>
-                <input type="text" id="endereco" name="Endereço do Problema" placeholder="Rua, número, bairro e ponto de referência" required>
+                <label for="endereco">2. Endereço da Indicação</label>
+                <input type="text" id="endereco" name="Endereço da Indicação" placeholder="Rua, número, bairro e ponto de referência" required>
             </div>
 
             <div class="form-group">
                 <label for="descricao">3. Descrição Detalhada</label>
-                <textarea id="descricao" name="Descrição do Problema" rows="5" placeholder="Ex: Buraco na via, vazamento de água..." required></textarea>
+                <textarea id="descricao" name="Descrição da Indicação " rows="5" placeholder="Ex: Buraco na via, vazamento de água..." required></textarea>
             </div>
 
             <div class="form-group">
-                <label for="foto">4. Anexe uma Foto do Problema</label>
+                <label for="foto">4. Anexe ou Tire uma Foto da Indicação</label>
                 <input type="file" id="foto" name="foto" accept="image/*" required>
             </div>
 
@@ -177,7 +128,7 @@
         const messageDiv = document.getElementById('message');
         const submitButton = document.getElementById('submitButton');
 
-        reportForm.addEventListener('submit', async function (event) {
+        reportForm.addEventListener('submit', async function(event) {
             // Previne o comportamento padrão do formulário (que seria recarregar a página)
             event.preventDefault();
 
@@ -198,7 +149,7 @@
             try {
                 // ATENÇÃO: Substitua 'seu-projeto.vercel.app' pela URL real do seu projeto implantado na Vercel.
                 // A rota '/send-report' deve ser mantida, pois foi definida no seu backend (server.js).
-                const response = await fetch('https://seu-projeto.vercel.app/send-report', {
+                const response = await fetch('https://tedesqui-indicacao.vercel.app/send-report', {
                     method: 'POST',
                     body: formData, // Não precisa de headers como 'Content-Type', o FormData cuida disso
                 });
