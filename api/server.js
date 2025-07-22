@@ -1,29 +1,50 @@
 // --- INSTRUÇÕES DE CONFIGURAÇÃO ---
-// Este ficheiro foi ajustado para ser compatível com o ambiente serverless da Vercel.
-// A linha "app.listen()" foi removida e "module.exports = app;" foi adicionada.
+// Este ficheiro foi ajustado com logs de diagnóstico e uma configuração de CORS mais explícita.
 
 const express = require('express');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const cors = require('cors');
-const path = require('path');
+
+console.log("Servidor a iniciar..."); // Log de diagnóstico 1
 
 const app = express();
 
-// --- Middlewares ---
-app.use(cors()); 
+// --- Configuração de CORS (Cross-Origin Resource Sharing) ---
+// IMPORTANTE: Substitua 'https://seu-site-frontend.vercel.app' pelo URL real do seu site na Vercel.
+const allowedOrigins = ['https://tedesqui-indicacao.vercel.app'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como de apps mobile ou Postman) ou se a origem estiver na lista
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido por CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configuração do Multer para lidar com o upload do ficheiro (foto) em memória
+// Configuração do Multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// --- Rota Principal para Envio do Relatório ---
-app.post('/send-report', upload.single('foto'), (req, res) => {
-    console.log("Recebendo dados do formulário...");
+// --- Verificação das Variáveis de Ambiente ---
+// Este log é crucial para o diagnóstico.
+console.log("A verificar variáveis de ambiente...");
+console.log(`EMAIL_USER carregado: ${process.env.EMAIL_USER ? 'Sim' : 'NÃO'}`);
+console.log(`EMAIL_PASS carregado: ${process.env.EMAIL_PASS ? 'Sim' : 'NÃO'}`);
 
-    const { 'Seu Nome Completo': nome, 'Endereço da Indicação': endereco, 'Descrição do Problema': descricao } = req.body;
+
+// --- Rota Principal para Envio do Relatório ---
+app.post('/', upload.single('foto'), (req, res) => {
+    console.log("Rota POST '/' foi acionada...");
+
+    const { 'Seu Nome Completo': nome, 'Endereço da Indicação': endereco, 'Descrição da Indicação': descricao } = req.body;
     const foto = req.file;
 
     if (!nome || !endereco || !descricao || !foto) {
@@ -32,7 +53,11 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     }
     
     // --- Configuração do Nodemailer ---
-    // As credenciais são lidas de variáveis de ambiente configuradas na Vercel.
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.log("ERRO CRÍTICO: As variáveis de ambiente EMAIL_USER ou EMAIL_PASS não estão definidas.");
+        return res.status(500).json({ success: false, message: 'Erro de configuração no servidor.' });
+    }
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -43,31 +68,22 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
 
     // --- Montagem do E-mail ---
     const mailOptions = {
-        from: `"Relatório de Indicações" <${process.env.EMAIL_USER}>`,
-        to: 'jk.tedesqui@gmail.com', // Altere para o e-mail que receberá o relatório
+        from: `"Relatório de Indicação" <${process.env.EMAIL_USER}>`,
+        to: 'email-de-destino@exemplo.com', // Altere para o e-mail que receberá o relatório
         subject: `Novo Relatório de Indicação: ${endereco}`,
-        html: `
-            <h1>Novo Relatório de Indicação Recebido</h1>
-            <p><strong>Nome do Relator:</strong> ${nome}</p>
-            <p><strong>Endereço da Indicação:</strong> ${endereco}</p>
-            <p><strong>Descrição:</strong></p>
-            <p>${descricao}</p>
-            <hr>
-            <p>A foto do problema está anexada a este e-mail.</p>
-        `,
-        attachments: [
-            {
-                filename: foto.originalname,
-                content: foto.buffer,
-                contentType: foto.mimetype
-            }
-        ]
+        html: `<h1>Novo Relatório de Indicação Recebido</h1><p><strong>Nome do Relator:</strong> ${nome}</p><p><strong>Endereço da Ocorrência:</strong> ${endereco}</p><p><strong>Descrição:</strong></p><p>${descricao}</p><hr><p>A foto do problema está anexada a este e-mail.</p>`,
+        attachments: [{
+            filename: foto.originalname,
+            content: foto.buffer,
+            contentType: foto.mimetype
+        }]
     };
 
     // --- Envio do E-mail ---
+    console.log("A tentar enviar o e-mail...");
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log('Erro ao enviar e-mail:', error);
+            console.log('Erro no Nodemailer:', error);
             return res.status(500).json({ success: false, message: 'Ocorreu um erro ao enviar o e-mail.' });
         }
         console.log('E-mail enviado com sucesso: ' + info.response);
@@ -75,6 +91,19 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     });
 });
 
-// --- Exporta a Aplicação para a Vercel ---
-// A Vercel precisa que a aplicação Express seja exportada para que ela possa geri-la.
+// Exporta a aplicação para a Vercel
 module.exports = app;
+```
+
+### O Que Fazer Agora (Passo a Passo)
+
+1.  **Atualize o `server.js`:** Copie o código acima e substitua o conteúdo do seu ficheiro `api/server.js`.
+2.  **Edite o URL do CORS:** Na linha `const allowedOrigins = ['https://tedesqui-indicacao.vercel.app'];`, **substitua** `https://seu-site-frontend.vercel.app` pelo URL **real** do seu site que está no Canvas.
+3.  **Envie para o GitHub:** Faça "commit" e "push" das alterações para o seu repositório.
+4.  **Aguarde o Deploy:** A Vercel irá reimplantar o seu site automaticamente.
+5.  **O Teste Final:**
+    * Vá ao seu painel de controlo na **Vercel** e abra os **"Logs"** da sua função.
+    * Com os logs abertos, tente submeter o formulário no seu site.
+    * **Observe os logs em tempo real.** Eles agora dir-lhe-ão exatamente o que está a acontecer.
+
+Se vir a mensagem `EMAIL_USER carregado: NÃO`, o problema está 100% na configuração das variáveis de ambiente na Vercel. Se vir outra mensagem de erro em vermelho, essa será a causa do proble
