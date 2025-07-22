@@ -56,13 +56,13 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
 
     // --- Montagem do E-mail ---
     const mailOptions = {
-        from: `"Relatório de Problemas" <${process.env.EMAIL_USER}>`, // E-mail que aparecerá como remetente
+        from: `"Relatório de Indicação" <${process.env.EMAIL_USER}>`, // E-mail que aparecerá como remetente
         to: 'jk.tedesqui@gmail.com', // E-MAIL QUE RECEBERÁ O RELATÓRIO
         subject: `Novo Relatório de Indicação: ${endereco}`,
         // Corpo do e-mail em HTML para melhor formatação
         html: `
             <h1>Novo Relatório de Indicação Recebido</h1>
-            <p><strong>Nome do Relator:</strong> ${nome}</p>
+            <p><strong>Seu Nome Completo:</strong> ${nome}</p>
             <p><strong>Endereço da Indicação:</strong> ${endereco}</p>
             <p><strong>Descrição:</strong></p>
             <p>${descricao}</p>
