@@ -1,5 +1,5 @@
 // --- Backend para o formulário de Indicação ---
-// Este servidor foi criado para ser compatível com o seu HTML e para ser hospedado na Vercel.
+// Versão com diagnóstico melhorado e configuração de CORS explícita.
 
 const express = require('express');
 const nodemailer = require('nodemailer');
@@ -9,24 +9,34 @@ const cors = require('cors');
 const app = express();
 
 // --- Configuração de CORS (Cross-Origin Resource Sharing) ---
-// Permite que o seu site na Vercel comunique com este backend.
-app.use(cors());
+// IMPORTANTE: Confirme se 'https://tedesqui-indicacao.vercel.app' é o URL exato do seu site.
+const corsOptions = {
+  origin: 'https://tedesqui-indicacao.vercel.app',
+  optionsSuccessStatus: 200 // para browsers mais antigos
+};
+app.use(cors(corsOptions));
 
 // Middlewares para processar os dados do formulário
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuração do Multer para lidar com o upload da foto em memória
+// Configuração do Multer
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- Rota de Envio ---
-// A rota '/send-report' corresponde exatamente ao URL no seu código JavaScript.
-// O 'upload.single('foto')' captura o ficheiro do campo com name="foto".
+// --- Rota de Verificação (Health Check) ---
+// Pode testar esta rota diretamente no navegador para ver se o servidor está online.
+// URL: https://tedesqui-indicacao.vercel.app/send-report
+app.get('/send-report', (req, res) => {
+    console.log("Rota GET de verificação acionada com sucesso.");
+    res.status(200).json({ message: 'O servidor de backend está a funcionar corretamente.' });
+});
+
+// --- Rota de Envio do Formulário ---
 app.post('/send-report', upload.single('foto'), (req, res) => {
-    console.log("Recebendo dados do formulário...");
+    console.log("Rota POST acionada. A processar o formulário...");
+    console.log("Dados recebidos:", req.body); // Log para ver os dados que chegam
 
     // Extrai os dados do corpo da requisição usando os nomes exatos do seu HTML.
-    // ATENÇÃO: O campo 'Descrição da Indicação ' tem um espaço no final no seu HTML.
     const {
         'Digite seu nome': nome,
         'Endereço da Indicação': endereco,
@@ -34,14 +44,18 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     } = req.body;
     const foto = req.file;
 
-    // Validação para garantir que todos os dados chegaram
+    // Validação
     if (!nome || !endereco || !descricao || !foto) {
-        console.log("Erro: Faltando dados do formulário.");
+        console.error("Erro: Faltando dados do formulário.", { nome, endereco, descricao, foto: !!foto });
         return res.status(400).json({ success: false, message: 'Todos os campos são obrigatórios.' });
     }
     
     // --- Configuração do Nodemailer ---
-    // Utiliza as variáveis de ambiente (EMAIL_USER, EMAIL_PASS) que você configurou na Vercel.
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.error("ERRO CRÍTICO: Variáveis de ambiente EMAIL_USER ou EMAIL_PASS não encontradas.");
+        return res.status(500).json({ success: false, message: 'Erro de configuração no servidor.' });
+    }
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -72,9 +86,10 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     };
 
     // --- Envio do E-mail ---
+    console.log("A tentar enviar o e-mail...");
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error('Erro ao enviar o e-mail:', error);
+            console.error('Erro ao enviar o e-mail (Nodemailer):', error);
             return res.status(500).json({ success: false, message: 'Ocorreu um erro ao enviar o e-mail.' });
         }
         console.log('E-mail enviado com sucesso:', info.response);
@@ -82,5 +97,5 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     });
 });
 
-// Exporta a aplicação para a Vercel. Não use app.listen().
+// Exporta a aplicação para a Vercel.
 module.exports = app;
