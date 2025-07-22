@@ -53,7 +53,7 @@ app.post('/send-report', upload.single('foto'), (req, res) => {
     // --- Montagem do E-mail ---
     const mailOptions = {
         from: `"Relatório de Indicações" <${process.env.EMAIL_USER}>`,
-        to: 'email-de-destino@exemplo.com', // **IMPORTANTE: Altere para o e-mail que receberá as indicações**
+        to: 'jk.tedesqui@gmail.com', // **IMPORTANTE: Altere para o e-mail que receberá as indicações**
         subject: `Nova Indicação Recebida: ${endereco}`,
         html: `
             <h1>Nova Indicação Recebida</h1>
