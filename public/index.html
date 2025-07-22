@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Indicações</title>
+    <title>Formulário de Indicação</title>
     <style>
+        /* Estilos para uma aparência limpa e moderna */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #172b4d;
+            background-color: #f4f7f6;
+            color: #333;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -16,168 +17,157 @@
             align-items: center;
             min-height: 100vh;
         }
+
         .container {
             background-color: #ffffff;
-            padding: 25px 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            box-sizing: border-box;
-            position: relative;
+            max-width: 600px;
         }
+
         h1 {
+            color: #0056b3;
             text-align: center;
-            color: #091e42;
             margin-bottom: 25px;
-            font-size: 24px;
         }
-        .form-group { margin-bottom: 22px; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
         label {
             display: block;
-            font-weight: 600;
             margin-bottom: 8px;
-            color: #42526e;
+            font-weight: 600;
         }
-        input[type="text"], textarea, input[type="file"] {
+
+        input[type="text"],
+        textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #dfe1e6;
-            border-radius: 6px;
-            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Importante para o padding não afetar a largura */
             font-size: 16px;
-            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        input[type="text"]:focus, textarea:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-            outline: none;
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
         }
-        input[type="file"] { padding: 8px; background-color: #fafbfc; }
-        textarea { resize: vertical; min-height: 120px; }
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
+        
+        input[type="file"] {
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            background-color: #007bff;
             color: white;
+            padding: 15px 25px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
             font-size: 18px;
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
+            transition: background-color 0.3s ease;
         }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+
+        .submit-btn:hover {
+            background-color: #0056b3;
         }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .message {
-            display: none;
-            padding: 15px;
-            border-radius: 8px;
+        
+        #form-result {
+            margin-top: 20px;
             text-align: center;
-            margin-bottom: 20px;
             font-weight: bold;
         }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Relatório de Indicação</h1>
-
-        <!-- Div para exibir as mensagens de sucesso ou erro do servidor -->
-        <div id="message" class="message"></div>
-
-        <!-- O formulário não precisa mais dos atributos action, method ou enctype. O JavaScript cuidará do envio. -->
-        <form id="reportForm">
-            <div class="form-group">
-                <label for="nome">1. Seu Nome Completo</label>
-                <input type="text" id="nome" name="Digite seu nome" placeholder="Digite seu nome" required>
-            </div>
+        <h1>Formulário de Indicação</h1>
+        <form id="indication-form" action="https://api.web3forms.com/submit" method="POST" enctype="multipart/form-data">
             
+            <input type="hidden" name="access_key" value="06ca2708-2fb8-4700-aa35-b37809a91e36
+">
+
             <div class="form-group">
-                <label for="endereco">2. Endereço da Indicação</label>
-                <input type="text" id="endereco" name="Endereço da Indicação" placeholder="Rua, número, bairro e ponto de referência" required>
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" name="Nome Completo" required>
             </div>
 
             <div class="form-group">
-                <label for="descricao">3. Descrição Detalhada</label>
-                <textarea id="descricao" name="Descrição da Indicação " rows="5" placeholder="Ex: Buraco na rua, poste sem luz, vazamento de água..." required></textarea>
+                <label for="endereco">Endereço da Indicação:</label>
+                <input type="text" id="endereco" name="Endereço da Indicação" required>
             </div>
 
             <div class="form-group">
-                <label for="foto">4. Anexe ou Tire uma Foto da Indicação</label>
-                <input type="file" id="foto" name="foto" accept="image/*" required>
+                <label for="descricao">Descrição Detalhada:</label>
+                <textarea id="descricao" name="Descrição Detalhada" rows="5" required></textarea>
             </div>
 
-            <button type="submit" id="submitButton">Enviar Indicação</button>
+            <div class="form-group">
+                <label for="foto">Anexar ou Tirar Foto:</label>
+                <input type="file" id="foto" name="Anexo" accept="image/*">
+            </div>
+
+            <button type="submit" class="submit-btn">Enviar Indicação</button>
         </form>
+        
+        <div id="form-result"></div>
     </div>
 
     <script>
-        const reportForm = document.getElementById('reportForm');
-        const messageDiv = document.getElementById('message');
-        const submitButton = document.getElementById('submitButton');
+        const form = document.getElementById('indication-form');
+        const result = document.getElementById('form-result');
 
-        reportForm.addEventListener('submit', async function(event) {
-            // Previne o comportamento padrão do formulário (que seria recarregar a página)
-            event.preventDefault();
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita o recarregamento da página
 
-            // Verifica se o formulário é válido (todos os campos 'required' preenchidos)
-            if (!reportForm.checkValidity()) {
-                reportForm.reportValidity(); // Mostra a mensagem de erro padrão do navegador
-                return;
-            }
+            const formData = new FormData(form);
+            const object = {};
+            formData.forEach((value, key) => {
+                object[key] = value
+            });
+            const json = JSON.stringify(object);
+            
+            result.innerHTML = "Enviando, por favor aguarde...";
+            result.style.color = "#333";
 
-            // Desabilita o botão e mostra uma mensagem de "enviando" para evitar cliques duplos
-            submitButton.disabled = true;
-            submitButton.textContent = 'Enviando...';
-            messageDiv.style.display = 'none';
-
-            // Cria um objeto FormData, que é a maneira correta de enviar arquivos e dados de formulário via fetch
-            const formData = new FormData(reportForm);
-
-            try {
-                // ATENÇÃO: Substitua 'seu-projeto.vercel.app' pela URL real do seu projeto implantado na Vercel.
-                // A rota '/send-report' deve ser mantida, pois foi definida no seu backend (server.js).
-                const response = await fetch('/send-report', {
+            fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
-                    body: formData, // Não precisa de headers como 'Content-Type', o FormData cuida disso
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: json
+                })
+                .then(async (response) => {
+                    let jsonResponse = await response.json();
+                    if (response.status == 200) {
+                        result.innerHTML = "✅ Indicação enviada com sucesso!";
+                        result.style.color = "green";
+                    } else {
+                        console.log(response);
+                        result.innerHTML = `❌ Erro: ${jsonResponse.message}`;
+                        result.style.color = "red";
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    result.innerHTML = "❌ Algo deu errado! Tente novamente mais tarde.";
+                    result.style.color = "red";
+                })
+                .then(function() {
+                    form.reset(); // Limpa o formulário
+                    setTimeout(() => {
+                        result.style.display = 'none'; // Esconde a mensagem após 5 segundos
+                    }, 5000);
                 });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    // Se a resposta do servidor for positiva (status 200-299)
-                    messageDiv.textContent = 'Sua mensagem foi enviada e será analisada o mais rápido possível!';
-                    messageDiv.className = 'message success';
-                    reportForm.reset(); // Limpa o formulário após o envio bem-sucedido
-                } else {
-                    // Se o servidor retornar um erro
-                    messageDiv.textContent = result.message || 'Ocorreu um erro. Tente novamente.';
-                    messageDiv.className = 'message error';
-                }
-            } catch (error) {
-                // Se houver um erro de rede (ex: servidor desligado ou CORS não configurado)
-                console.error('Erro de conexão:', error);
-                messageDiv.textContent = 'Não foi possível conectar ao servidor. Verifique sua conexão ou tente mais tarde.';
-                messageDiv.className = 'message error';
-            } finally {
-                // Este bloco sempre será executado, independentemente de sucesso ou erro
-                // Reabilita o botão e mostra a div de mensagem
-                submitButton.disabled = false;
-                submitButton.textContent = 'Enviar Relatório';
-                messageDiv.style.display = 'block';
-            }
         });
     </script>
 
