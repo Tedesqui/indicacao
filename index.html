@@ -208,7 +208,7 @@
 
             <div class="form-group">
                 <label for="endereco">Endereço da Indicação</label>
-                <input type="text" id="endereco" name="Endereço da Indicação" placeholder="Rua, Bairro, Ponto de Referência..." required>
+                <input type="text" id="endereco" name="Endereço da Indicação" placeholder="Rua, Bairro, Referência..." required>
             </div>
 
             <div class="form-group">
@@ -263,15 +263,15 @@
             .then(data => {
                 resultDiv.style.display = 'none'; // Garante que a mensagem de erro suma
                 
-                successMessage.textContent = data.message || "Indicação enviada com sucesso! Vamos resolver isso o mais rápido possível. Obrigado pela colaboração!";
+                successMessage.textContent = "Indicação enviada com sucesso! Vamos solucionar isso o mais rápido possível. Obrigado pela colaboração!";
                 successModal.style.display = 'flex'; // Mostra o modal de sucesso
                 
                 form.reset(); // Limpa os campos do formulário
 
-                // Esconde o modal de sucesso após 5 segundos
+                // Esconde o modal de sucesso após 8 segundos
                 setTimeout(() => {
                     successModal.style.display = 'none';
-                }, 5000);
+                }, 8000);
             })
             .catch(error => {
                 resultDiv.classList.remove('success');
@@ -280,10 +280,10 @@
                 resultDiv.style.display = 'block'; // Mostra a mensagem de erro
                 console.error('Error:', error);
 
-                // Esconde a mensagem de erro após 5 segundos
+                // Esconde a mensagem de erro após 8 segundos
                 setTimeout(() => {
                     resultDiv.style.display = 'none';
-                }, 5000);
+                }, 8000);
             })
             .finally(() => {
                 // Apenas reabilita o botão
