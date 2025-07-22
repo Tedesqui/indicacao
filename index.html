@@ -147,7 +147,7 @@
 
     <div class="container">
         <h1>Formulário de Indicação</h1>
-        <!-- O atributo 'enctype' é crucial para o envio de arquivos -->
+        <!-- O atributo 'enctype' foi mantido pois o script usa FormData -->
         <form id="indication-form" method="POST" enctype="multipart/form-data">
             
             <!-- 
@@ -172,12 +172,6 @@
             <div class="form-group">
                 <label for="descricao">Descrição Detalhada</label>
                 <textarea id="descricao" name="Descrição Detalhada" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="foto">Anexar ou Tirar Foto da Indicação</label>
-                <!-- Em celulares, a opção de usar a câmera aparecerá automaticamente -->
-                <input type="file" id="foto" name="anexo" accept="image/*,application/pdf">
             </div>
 
             <button type="submit" class="submit-btn" id="submit-button">
