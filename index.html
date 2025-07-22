@@ -213,7 +213,7 @@
             .then(data => {
                 resultDiv.classList.remove('error');
                 resultDiv.classList.add('success');
-                resultDiv.textContent = data.message || "Indicação enviada com sucesso!";
+                resultDiv.textContent = data.message || "Indicação enviada com sucesso! Vamos solucionar isso o mais rápido possível. Obrigado pela colaboração!";
                 form.reset(); // Limpa os campos do formulário
             })
             .catch(error => {
@@ -226,10 +226,10 @@
                 // Reabilita o botão após o envio
                 submitButton.disabled = false;
                 submitButton.querySelector('span').textContent = 'Enviar Indicação';
-                // Esconde a mensagem de resultado após 5 segundos
+                // Esconde a mensagem de resultado após 7 segundos
                 setTimeout(() => {
                     resultDiv.style.display = 'none';
-                }, 5000);
+                }, 7000);
             });
         });
     </script>
