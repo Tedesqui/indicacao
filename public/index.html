@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relat�rio de Problemas</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #172b4d;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        <!DOCTYPE html >
+        <html lang="pt-BR" >
+        <head >
+        <meta charset="UTF-8" >
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+        <title > Relatório de Problemas</title >
+        <style >
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #172b4d;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #091e42;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #42526e;
+        }
+
+        input[type="text"], textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dfe1e6;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+            input[type="text"]:focus, textarea:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+                outline: none;
+            }
+
+        input[type="file"] {
+            padding: 8px;
+            background-color: #fafbfc;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+            }
+
+            button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
+
+        .message {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Relatório de Problema</h1>
+
+        <!-- Div para exibir as mensagens de sucesso ou erro do servidor -->
+        <div id="message" class="message"></div>
+
+        <!-- O formulário não precisa mais dos atributos action, method ou enctype. O JavaScript cuidará do envio. -->
+        <form id="reportForm">
+            <div class="form-group">
+                <label for="nome">1. Seu Nome Completo</label>
+                <input type="text" id="nome" name="Nome do Relator" placeholder="Digite seu nome" required>
+            </div>
+
+            <div class="form-group">
+                <label for="endereco">2. Endereço da Ocorrência</label>
+                <input type="text" id="endereco" name="Endereço do Problema" placeholder="Rua, número, bairro e ponto de referência" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">3. Descrição Detalhada</label>
+                <textarea id="descricao" name="Descrição do Problema" rows="5" placeholder="Ex: Buraco na via, vazamento de água..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="foto">4. Anexe uma Foto do Problema</label>
+                <input type="file" id="foto" name="foto" accept="image/*" required>
+            </div>
+
+            <button type="submit" id="submitButton">Enviar Relatório</button>
+        </form>
+    </div>
+
+    <script>
+        const reportForm = document.getElementById('reportForm');
+        const messageDiv = document.getElementById('message');
+        const submitButton = document.getElementById('submitButton');
+
+        reportForm.addEventListener('submit', async function (event) {
+            // Previne o comportamento padrão do formulário (que seria recarregar a página)
+            event.preventDefault();
+
+            // Verifica se o formulário é válido (todos os campos 'required' preenchidos)
+            if (!reportForm.checkValidity()) {
+                reportForm.reportValidity(); // Mostra a mensagem de erro padrão do navegador
+                return;
+            }
+
+            // Desabilita o botão e mostra uma mensagem de "enviando" para evitar cliques duplos
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+            messageDiv.style.display = 'none';
+
+            // Cria um objeto FormData, que é a maneira correta de enviar arquivos e dados de formulário via fetch
+            const formData = new FormData(reportForm);
+
+            try {
+                // ATENÇÃO: Substitua 'seu-projeto.vercel.app' pela URL real do seu projeto implantado na Vercel.
+                // A rota '/send-report' deve ser mantida, pois foi definida no seu backend (server.js).
+                const response = await fetch('https://seu-projeto.vercel.app/send-report', {
+                    method: 'POST',
+                    body: formData, // Não precisa de headers como 'Content-Type', o FormData cuida disso
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Se a resposta do servidor for positiva (status 200-299)
+                    messageDiv.textContent = 'Sua mensagem foi enviada e será analisada o mais rápido possível!';
+                    messageDiv.className = 'message success';
+                    reportForm.reset(); // Limpa o formulário após o envio bem-sucedido
+                } else {
+                    // Se o servidor retornar um erro
+                    messageDiv.textContent = result.message || 'Ocorreu um erro. Tente novamente.';
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                // Se houver um erro de rede (ex: servidor desligado ou CORS não configurado)
+                console.error('Erro de conexão:', error);
+                messageDiv.textContent = 'Não foi possível conectar ao servidor. Verifique sua conexão ou tente mais tarde.';
+                messageDiv.className = 'message error';
+            } finally {
+                // Este bloco sempre será executado, independentemente de sucesso ou erro
+                // Reabilita o botão e mostra a div de mensagem
+                submitButton.disabled = false;
+                submitButton.textContent = 'Enviar Relatório';
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
