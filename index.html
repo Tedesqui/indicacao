@@ -144,12 +144,11 @@
                 <label for="descricao">Descrição Detalhada</label>
                 <textarea id="descricao" name="descricao" placeholder="Ex: Buraco na rua, poste sem luz..." required></textarea>
             </div>
-            <!-- CAMPO DE FOTO ADICIONADO -->
+            <!-- CAMPO DE FOTO ALTERADO -->
             <div class="form-group">
-                <label for="foto">Anexar Foto</label>
-                <input type="file" id="foto" name="foto" accept="image/*" required>
+                <label for="foto">Anexar Foto (Opcional)</label>
+                <input type="file" id="foto" name="foto" accept="image/*">
             </div>
-            <!-- CAMPO DE SUGESTÕES REMOVIDO -->
             <button type="submit" class="submit-btn" id="submit-button">
                 <span>Enviar Indicação</span>
             </button>
@@ -175,18 +174,14 @@
             submitButton.querySelector('span').textContent = 'Enviando...';
             resultDiv.style.display = 'none';
 
-            // --- PONTO DE ALTERAÇÃO IMPORTANTE ---
-            // Substitua esta URL pela URL da sua API na Vercel.
-            // Ex: https://seu-projeto-123.vercel.app/api/send-email
             const backendUrl = 'https://SEU-PROJETO.vercel.app/api/send-email';
 
-            // Usamos FormData para enviar ficheiros
             const formData = new FormData(form);
 
             try {
                 const response = await fetch(backendUrl, {
                     method: 'POST',
-                    body: formData, // O browser define o 'Content-Type' como multipart/form-data
+                    body: formData,
                 });
 
                 const result = await response.json();
