@@ -110,8 +110,6 @@
         .modal-content p {
             margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--success-color);
         }
-
-        /* --- ESTILOS PARA O BOTÃO DE UPLOAD PERSONALIZADO --- */
         .file-upload-label {
             display: flex;
             align-items: center;
@@ -160,7 +158,6 @@
                 <label for="descricao">Descrição Detalhada</label>
                 <textarea id="descricao" name="descricao" placeholder="Ex: Buraco na rua, poste sem luz..." required></textarea>
             </div>
-            
             <div class="form-group">
                 <label>Anexar Foto (Opcional)</label>
                 <label for="foto" class="file-upload-label">
@@ -169,7 +166,6 @@
                 </label>
                 <input type="file" id="foto" name="foto" accept="image/*" style="display: none;">
             </div>
-            
             <button type="submit" class="submit-btn" id="submit-button">
                 <span>Enviar Indicação</span>
             </button>
@@ -188,23 +184,49 @@
         const submitButton = document.getElementById('submit-button');
         const successModal = document.getElementById('success-modal');
         const successMessage = document.getElementById('success-message');
+        const fileInput = document.getElementById('foto');
+        const fileUploadText = document.querySelector('.file-upload-text');
 
-        // --- INÍCIO DA MODIFICAÇÃO: LISTA DE PALAVRAS BLOQUEADAS ---
+        // --- INÍCIO DA MODIFICAÇÃO: LÓGICA DE AUTO-CORREÇÃO ---
+
+        // 1. Lista de palavras a serem removidas
         const blockedWords = [
             'inválido', 'fraude', 'roubo', 'cu', 'cú', 'fdp', 'safado', 'bandido', 
             'denunciar', 'policia', 'polícia', 'vagabundo', 'pilantra', 'roubar', 
             'mãe', 'denúncia', 'denuncia', 'caralho', 'ladrão', 'corrupto', 
             'idiota', 'imbecil', 'vtmnc', 'ladrões'
         ];
-        // Cria uma expressão regular para buscar as palavras de forma eficiente e case-insensitive ('i').
-        // O `\\b` garante que apenas palavras inteiras sejam correspondidas.
-        const blockedWordsRegex = new RegExp(`\\b(${blockedWords.join('|')})\\b`, 'i');
+
+        // 2. Cria uma expressão regular para encontrar todas as ocorrências (g) sem diferenciar maiúsculas/minúsculas (i)
+        const blockedWordsRegex = new RegExp(`\\b(${blockedWords.join('|')})\\b`, 'gi');
+
+        // 3. Função que remove as palavras proibidas de um campo de texto
+        function sanitizeInput(event) {
+            const input = event.target;
+            const originalValue = input.value;
+            const sanitizedValue = originalValue.replace(blockedWordsRegex, ''); // Substitui por nada
+
+            // Atualiza o valor do campo apenas se houver mudança, para evitar loops
+            if (originalValue !== sanitizedValue) {
+                // Salva a posição do cursor para não atrapalhar a digitação
+                const cursorPosition = input.selectionStart - (originalValue.length - sanitizedValue.length);
+                input.value = sanitizedValue;
+                // Restaura a posição do cursor
+                input.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        }
+
+        // 4. Aplica a função de sanitização aos campos desejados
+        const nomeInput = document.getElementById('nome');
+        const enderecoInput = document.getElementById('endereco');
+        const descricaoInput = document.getElementById('descricao');
+
+        nomeInput.addEventListener('input', sanitizeInput);
+        enderecoInput.addEventListener('input', sanitizeInput);
+        descricaoInput.addEventListener('input', sanitizeInput);
+
         // --- FIM DA MODIFICAÇÃO ---
 
-
-        // --- SCRIPT PARA O BOTÃO DE UPLOAD PERSONALIZADO ---
-        const fileInput = document.getElementById('foto');
-        const fileUploadText = document.querySelector('.file-upload-text');
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files && fileInput.files.length > 0) {
@@ -214,30 +236,13 @@
             }
         });
 
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // --- INÍCIO DA MODIFICAÇÃO: VALIDAÇÃO SILENCIOSA ---
-            const nomeValue = document.getElementById('nome').value;
-            const enderecoValue = document.getElementById('endereco').value;
-            const descricaoValue = document.getElementById('descricao').value;
-            const textToValidate = `${nomeValue} ${enderecoValue} ${descricaoValue}`;
-
-            if (blockedWordsRegex.test(textToValidate)) {
-                // Se uma palavra bloqueada for encontrada, a função para aqui silenciosamente.
-                // Nenhum erro é mostrado, e o envio é simplesmente cancelado.
-                console.log("Palavra bloqueada detectada. Envio interrompido.");
-                return;
-            }
-            // --- FIM DA MODIFICAÇÃO ---
-
             submitButton.disabled = true;
             submitButton.querySelector('span').textContent = 'Enviando...';
             resultDiv.style.display = 'none';
 
             const backendUrl = 'https://tedesqui-indicacao.vercel.app/api/send-email';
-
             const formData = new FormData(form);
 
             try {
@@ -245,7 +250,6 @@
                     method: 'POST',
                     body: formData,
                 });
-
                 const result = await response.json();
 
                 if (!response.ok) {
@@ -255,7 +259,7 @@
                 successMessage.textContent = "Indicação enviada com sucesso! Vamos atender o seu pedido o mais rápido possível.";
                 successModal.style.display = 'flex';
                 form.reset();
-                fileUploadText.textContent = 'Opcional'; // Garante que o texto do botão volte ao normal
+                fileUploadText.textContent = 'Opcional';
                 setTimeout(() => {
                     successModal.style.display = 'none';
                 }, 8000);
